@@ -1,37 +1,36 @@
-from user_manager import GerenciadorUsuarios 
+from database.user_manager import GerenciadorUsuarios 
 from database import fetch_all, fetch_one, execute_query
 
 user_manager = GerenciadorUsuarios()
 
 def service_get_all_workers():
-
-    query = "SELECT matricula, usuario, nivel_acesso FROM supply_chain.users" 
+    # Esta função parece interagir com uma tabela 'users' que pode não existir.
+    # O ideal é usar o user_manager para listar os usuários.
+    query = "SELECT id, nome, email, funcao FROM supply_chain.usuarios" 
     return fetch_all(query)
 
-def service_get_worker(matricula):
-    query = "SELECT matricula, usuario, nivel_acesso FROM supply_chain.users WHERE matricula = ?"
-    return fetch_one(query, (matricula,))
+def service_get_worker(user_id):
+    query = "SELECT id, nome, email, funcao FROM supply_chain.usuarios WHERE id = ?"
+    return fetch_one(query, (user_id,))
 
-def service_create_worker(usuario, senha, matricula, nivel_acesso):
-
-    success, msg_or_error = user_manager.criar_usuario(usuario, senha, matricula, nivel_acesso)
-    
-    if success:
-        return matricula, "Registro de usuário concluído com sucesso!"
-    else:
-        return None, msg_or_error
-
-def service_update_worker(matricula, usuario=None, senha=None, nivel_acesso=None):
-  
-    success, msg = user_manager.atualizar_usuario(matricula, usuario, senha, nivel_acesso)
-    return success, msg
-
-def service_remove_worker(matricula):
-    query = "DELETE FROM supply_chain.users WHERE matricula = ?"
-    success, deleted_count = execute_query(query, (matricula,))
-    return success and deleted_count > 0
+def service_create_worker(data):
+    # CORREÇÃO: Passando todos os argumentos necessários para criar_usuario
+    return user_manager.criar_usuario(
+        nome=data.get('nome'),
+        sobrenome=data.get('sobrenome'),
+        data_nascimento=data.get('data_nascimento'),
+        cpf=data.get('cpf'),
+        funcao=data.get('funcao'),
+        email=data.get('email'),
+        senha=data.get('senha')
+    )
 
 def service_authenticate_user(usuario, senha):
-    
+    # CORREÇÃO: O método autenticar agora retorna uma tupla (sucesso, mensagem, nivel_acesso)
     authenticated, msg, nivel = user_manager.autenticar(usuario, senha)
     return authenticated, msg, nivel
+
+def service_remove_worker(user_id):
+    query = "DELETE FROM supply_chain.usuarios WHERE id = ?"
+    success, deleted_count = execute_query(query, (user_id,))
+    return success and deleted_count > 0
