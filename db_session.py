@@ -1,33 +1,28 @@
 import os
 from dotenv import load_dotenv
-from sqlalchemy import create_engine, text, URL
+from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker, Session, DeclarativeBase
 from typing import Generator
 
 load_dotenv()
 
-DIALECT = 'mssql+pyodbc'
-DRIVER = 'ODBC Driver 17 for SQL Server' 
+# --- ALTERAÇÃO PRINCIPAL AQUI ---
+# Trocamos o dialeto de 'mssql+pyodbc' para 'mssql+pytds'
+# Isso elimina a necessidade do driver ODBC
+DIALECT = 'mssql+pytds' 
 SERVER = os.getenv('AZURE_SQL_SERVER')
 DATABASE = os.getenv('AZURE_SQL_DATABASE')
 USERNAME = os.getenv('AZURE_SQL_USERNAME')
 PASSWORD = os.getenv('AZURE_SQL_PASSWORD')
 
-db_url = URL.create(
-    DIALECT,
-    username=USERNAME,
-    password=PASSWORD,
-    host=SERVER,
-    database=DATABASE,
-    query={
-        'odbc_connect': f"DRIVER={{{DRIVER}}};TrustServerCertificate=no;Encrypt=yes;"
-    }
-)
+# String de conexão simplificada para o pytds
+db_url = f"{DIALECT}://{USERNAME}:{PASSWORD}@{SERVER}:1433/{DATABASE}"
 
 engine = create_engine(
     db_url,
     echo=False,
-    pool_recycle=3600
+    pool_recycle=3600,
+    connect_args={'autocommit': True} # O pytds funciona melhor com autocommit a nível de engine
 )
 
 SessionLocal = sessionmaker(
@@ -51,7 +46,7 @@ def check_db_connection():
         with engine.connect() as connection:
             result = connection.execute(text("SELECT 1"))
             if result.scalar_one():
-                print("Conexão com o banco de dados bem-sucedida.")
+                print("Conexão com o banco de dados (usando pytds) bem-sucedida.")
             else:
                 raise Exception("Falha na execução do teste básico.")
     except Exception as e:
