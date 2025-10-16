@@ -6,23 +6,20 @@ from typing import Generator
 
 load_dotenv()
 
-# --- ALTERAÇÃO PRINCIPAL AQUI ---
-# Trocamos o dialeto de 'mssql+pyodbc' para 'mssql+pytds'
-# Isso elimina a necessidade do driver ODBC
+# Dialeto alterado para 'mssql+pytds'
 DIALECT = 'mssql+pytds' 
 SERVER = os.getenv('AZURE_SQL_SERVER')
 DATABASE = os.getenv('AZURE_SQL_DATABASE')
 USERNAME = os.getenv('AZURE_SQL_USERNAME')
 PASSWORD = os.getenv('AZURE_SQL_PASSWORD')
 
-# String de conexão simplificada para o pytds
+# String de conexão para o pytds
 db_url = f"{DIALECT}://{USERNAME}:{PASSWORD}@{SERVER}:1433/{DATABASE}"
 
 engine = create_engine(
     db_url,
     echo=False,
-    pool_recycle=3600,
-    connect_args={'autocommit': True} # O pytds funciona melhor com autocommit a nível de engine
+    pool_recycle=3600
 )
 
 SessionLocal = sessionmaker(
