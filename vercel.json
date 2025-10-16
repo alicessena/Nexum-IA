@@ -3,12 +3,7 @@
   "builds": [
     {
       "src": "app.py",
-      "use": "@vercel/python",
-      "config": {
-        "env": {
-          "ODBCSYSINI": "/var/task"
-        }
-      }
+      "use": "@vercel/python"
     }
   ],
   "routes": [
@@ -16,5 +11,8 @@
       "src": "/(.*)",
       "dest": "app.py"
     }
-  ]
+  ],
+  "env": {
+    "ODBCSYSINI": "/var/task"
+  }
 }
