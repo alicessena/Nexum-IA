@@ -1,11 +1,6 @@
-# Remova a linha do pyodbc
-# pyodbc==5.2.0
+# Remova a linha do pyodbc se ainda existir
+# Adicione pytds e sqlalchemy-pytds
 
-# Adicione estas duas linhas no lugar (pode ser no final do arquivo)
-pytds==1.11.0
-sqlalchemy-pytds==0.3.2
-
-# Mantenha as outras dependências como estão
 attrs==23.2.0
 bcrypt==4.1.2
 blinker==1.7.0
@@ -52,3 +47,5 @@ typing_extensions==4.10.0
 tzdata==2024.1
 urllib3==2.2.1
 Werkzeug==3.0.1
+pytds==1.11.0
+sqlalchemy-pytds==0.3.2
